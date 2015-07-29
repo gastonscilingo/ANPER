@@ -21,5 +21,12 @@ public class ExampleTestSuite {
 		example.foo();
 		assertTrue(true);
 	}
+	
+	@Test
+	public void test2() {
+		MainExample example = new MainExample();
+		example.foo2();
+		assertTrue(true);
+	}
 
 }
