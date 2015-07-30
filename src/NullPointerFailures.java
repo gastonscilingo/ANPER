@@ -19,7 +19,7 @@ public class NullPointerFailures {
 			nullPointerFailures = new LinkedList<NullPointerFailure>();
 
 			for (Failure failure : failures){
-				if (failure.getTrace().contains("NullPointerException")){
+				if (failure.getTrace().contains("java.lang.NullPointerException")){
 					NullPointerFailure f = new NullPointerFailure(failure);
 					nullPointerFailures.add(f);
 				}

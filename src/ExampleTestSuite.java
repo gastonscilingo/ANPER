@@ -17,15 +17,29 @@ public class ExampleTestSuite {
 
 	@Test
 	public void test() {
-		MainExample example = new MainExample();
+		ExampleSourceCode example = new ExampleSourceCode();
 		example.foo();
 		assertTrue(true);
 	}
 	
 	@Test
 	public void test2() {
-		MainExample example = new MainExample();
+		ExampleSourceCode example = new ExampleSourceCode();
 		example.foo2();
+		assertTrue(true);
+	}
+	
+	@Test
+	public void test3() {
+		ExampleSourceCode example = new ExampleSourceCode();
+		example.foo3();
+		assertTrue(true);
+	}
+	
+	@Test
+	public void test4() {
+		ExampleSourceCode example = new ExampleSourceCode();
+		example.foo4();
 		assertTrue(true);
 	}
 

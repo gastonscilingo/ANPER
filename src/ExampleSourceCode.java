@@ -1,7 +1,7 @@
 import java.util.LinkedList;
 
 
-public class MainExample {
+public class ExampleSourceCode {
 	
 	private static LinkedList l;
 
@@ -16,13 +16,18 @@ public class MainExample {
 	}
 
 	public int foo2() {
-		return l.size();		
+		return l.size();
 	}
 	
 	public static void foo3(){
 		for(int i = l.size(); i <= 0 ; i--){
 			System.out.println("skip");
 		}
+	}
+	
+	public static String foo4(){
+		ExampleLibraries n = new ExampleLibraries();
+		return n.failedFunction();
 	}
 	
 	

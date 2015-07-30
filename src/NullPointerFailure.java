@@ -61,14 +61,7 @@ public class NullPointerFailure {
 	public String getTestedMethodName() {
 		return testedMethodName;
 	}
-
-	/**
-	 * @return the testedFileName
-	 */
-	public String getTestedFileName() {
-		return testedFileName;
-	}
-
+	
 	/**
 	 * @return the failureLine
 	 */
@@ -76,6 +69,19 @@ public class NullPointerFailure {
 		return failureLine;
 	}
 
+	/**
+	 * @return the testedFileName
+	 */
+	public String getTestedFileName() {
+		return testedFileName;
+	}
+	
+	/**
+	 * @return the outputTrace
+	 */
+	public String getOutputTrace() {
+		return outputTrace;
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
