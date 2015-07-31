@@ -28,8 +28,7 @@ public class ExampleSourceCode {
 	public static String foo4(){
 		ExampleLibraries n = new ExampleLibraries();
 		return n.failedFunction();
-	}
-	
+	}	
 	
 
 }

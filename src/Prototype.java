@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class Prototype {
 		String srcPath = relativePath+"src/";
 		String binPath = relativePath+"bin/";
 		String testSuitesPath = relativePath+"test/";
+		String outputPath = relativePath+"outputMutants/";
 		Class testToRun = ExampleTestSuite.class;
 
 		
@@ -64,15 +66,21 @@ public class Prototype {
 							System.out.println("contains!! "+className);
 						}
 						
-						
-						File file = new File(srcPath+failure.getTestedFileName());
+						File file = null;
+						Path path = new File(outputPath+failure.getTestedFileName()).toPath();
+						if (!Files.exists(path, java.nio.file.LinkOption.NOFOLLOW_LINKS) ){
+							file = new File(srcPath+failure.getTestedFileName());
+						}else{
+							file = new File(outputPath+failure.getTestedFileName());
+						}
+							
 						List<String> lines;
 						try {
 							lines = Files.readAllLines(file.toPath());
 							String line = lines.get(failureLine-1);
 							lines.set(failureLine-1, line+" //mutGenLimit 1");
 							
-							file = new File(srcPath+failure.getTestedFileName());
+							file = new File(outputPath+failure.getTestedFileName());
 							Files.write(file.toPath(), lines);
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
