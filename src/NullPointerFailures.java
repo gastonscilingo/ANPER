@@ -8,32 +8,35 @@ import org.junit.runner.notification.Failure;
 public class NullPointerFailures {
 	
 	private int failureCount;
-	private List<Failure> failures;
 	private List<NullPointerFailure> nullPointerFailures;
 
 	
-	public NullPointerFailures(Result result) {
-		if (result.getFailureCount() > 0){
-			int tempFailureCount = result.getFailureCount(); 
-			failures = result.getFailures();
-			nullPointerFailures = new LinkedList<NullPointerFailure>();
-
-			for (Failure failure : failures){
-				if (failure.getTrace().contains("java.lang.NullPointerException")){
-					NullPointerFailure f = new NullPointerFailure(failure);
-					nullPointerFailures.add(f);
-				}
-			}
-			failureCount = nullPointerFailures.size();
-		}else{
-			failureCount = 0;
+	public NullPointerFailures() {
+		this.failureCount = 0;
+		this.nullPointerFailures = new LinkedList<NullPointerFailure>();
+	}
+	
+	public NullPointerFailures(List<Result> results) {
+		this();
+		for	(Result r : results) {
+			add(r);
 		}
 	}
 	
-	public NullPointerFailure getFailure(int i){
-		if (i<0 || i>=nullPointerFailures.size())
-				throw new IndexOutOfBoundsException();
-		return nullPointerFailures.get(i);
+	public void add(Result result) {
+		if (result.getFailureCount() > 0){
+			for (Failure failure : result.getFailures()){
+				if (failure.getTrace().contains("java.lang.NullPointerException")){
+					NullPointerFailure f = new NullPointerFailure(failure);
+					this.nullPointerFailures.add(f);
+					this.failureCount++;
+				}
+			}
+		}
+	}
+	
+	public List<NullPointerFailure> getFailures(){
+		return this.nullPointerFailures;
 	}
 
 	public boolean hasFailures() {
