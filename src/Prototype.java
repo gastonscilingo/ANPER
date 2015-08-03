@@ -5,10 +5,14 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.JUnit4TestCaseFacade;
 import main.api.DependencyScanner;
 
+import org.junit.internal.builders.JUnit4Builder;
+import org.junit.matchers.JUnitMatchers;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
+import org.junit.runners.JUnit4;
 
 public class Prototype {
 	
@@ -46,15 +50,16 @@ public class Prototype {
 			//MuJavaJunitTestRunner testRunner = new MuJavaJunitTestRunner(testToRun, false);
 			//Result result = testRunner.run();
 			Result result = JUnitCore.runClasses(testToRun);
+
 			
 			if(!result.wasSuccessful()){
 				System.out.println("Testing failures : "+result.getFailureCount());
-				NullPointerFailures npetr = new NullPointerFailures(result);
-				
+				NullPointerFailures npetr = new NullPointerFailures();
+				npetr.add(result);
 				if (npetr.hasFailures()){
-					
-					for (int i =0; i<npetr.getFailureCount() ; i++){
-						NullPointerFailure failure = npetr.getFailure(i);
+					List<NullPointerFailure> failures = npetr.getFailures();
+
+					for (NullPointerFailure failure : failures){
 						String className =  failure.getTestedClassName();
 						String methodName = failure.getTestedMethodName();
 						int failureLine = failure.getFailureLine(); 
