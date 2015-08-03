@@ -14,6 +14,10 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runners.JUnit4;
 
+import anper.mutation.NullPointerFailure;
+import anper.mutation.NullPointerFailures;
+import examples.foo.ExampleTestSuite;
+
 public class Prototype {
 	
 	
@@ -57,7 +61,7 @@ public class Prototype {
 				NullPointerFailures npetr = new NullPointerFailures();
 				npetr.add(result);
 				if (npetr.hasFailures()){
-					List<NullPointerFailure> failures = npetr.getFailures();
+					List<NullPointerFailure> failures = npetr.getNullPointerExceptionFailures();
 
 					for (NullPointerFailure failure : failures){
 						String className =  failure.getTestedClassName();

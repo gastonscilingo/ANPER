@@ -1,3 +1,4 @@
+package examples.foo;
 
 public class ExampleLibraries {
 	

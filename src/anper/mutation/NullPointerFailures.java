@@ -1,3 +1,4 @@
+package anper.mutation;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,13 +8,15 @@ import org.junit.runner.notification.Failure;
 
 public class NullPointerFailures {
 	
+	private int npeFailureCount;
 	private int failureCount;
 	private List<NullPointerFailure> nullPointerFailures;
 
 	
 	public NullPointerFailures() {
 		this.failureCount = 0;
-		this.nullPointerFailures = new LinkedList<NullPointerFailure>();
+		this.npeFailureCount = 0;
+		this.nullPointerFailures = new LinkedList<>();
 	}
 	
 	public NullPointerFailures(List<Result> results) {
@@ -29,22 +32,31 @@ public class NullPointerFailures {
 				if (failure.getTrace().contains("java.lang.NullPointerException")){
 					NullPointerFailure f = new NullPointerFailure(failure);
 					this.nullPointerFailures.add(f);
-					this.failureCount++;
+					this.npeFailureCount++;
 				}
+				this.failureCount++;
 			}
 		}
 	}
 	
-	public List<NullPointerFailure> getFailures(){
+	public List<NullPointerFailure> getNullPointerExceptionFailures(){
 		return this.nullPointerFailures;
 	}
 
 	public boolean hasFailures() {
-		return failureCount > 0;
+		return this.failureCount > 0;
+	}
+	
+	public boolean hasNullPointerExceptionFailures() {
+		return this.npeFailureCount > 0;
 	}
 
 	public int getFailureCount() {
-		return failureCount;
+		return this.failureCount;
+	}
+	
+	public int getNullPointerExceptionFailureCount() {
+		return this.npeFailureCount;
 	}
 
 }

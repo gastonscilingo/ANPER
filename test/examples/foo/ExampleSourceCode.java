@@ -1,3 +1,4 @@
+package examples.foo;
 import java.util.LinkedList;
 
 
