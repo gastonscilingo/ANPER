@@ -1,4 +1,4 @@
-package anper.mutation;
+package anper.junit;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 

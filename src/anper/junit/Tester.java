@@ -7,7 +7,6 @@ import java.util.Set;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
-import anper.mutation.NullPointerFailures;
 import mujava.loader.Reloader;
 
 /**
@@ -39,8 +38,8 @@ public class Tester {
 		this.juCore = new JUnitCore();
 	}
 	
-	public NullPointerFailures runTests() {
-		NullPointerFailures failures = new NullPointerFailures();
+	public NullPointerFailures runTests(Set<String> fixableClasses) {
+		NullPointerFailures failures = new NullPointerFailures(fixableClasses);
 		Class<?> testToRun = null;
 		for (String test : this.tests) {
 			this.reloader = this.reloader.getLastChild();

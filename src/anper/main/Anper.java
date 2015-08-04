@@ -2,10 +2,6 @@ package anper.main;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -14,37 +10,48 @@ import java.util.TreeSet;
 import main.api.DependencyScanner;
 import mujava.OpenJavaException;
 import openjava.ptree.ParseTreeException;
-
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-
+import anper.config.ConfigReader;
+import static anper.config.ConfigReader.Config_key.*;
+import anper.junit.NullPointerFailure;
+import anper.junit.NullPointerFailures;
 import anper.junit.Tester;
 import anper.mutation.NPERClassToMutate;
 import anper.mutation.NPERMutator;
-import anper.mutation.NullPointerFailure;
-import anper.mutation.NullPointerFailures;
 import anper.utils.MutGenLimitMarker;
-import examples.foo.ExampleTestSuite;
 
 public class Anper {
 
 	public static void main(String[] args) throws ClassNotFoundException, OpenJavaException, ParseTreeException, IOException {
-		String relativePath = "/Users/gaston/Documents/EclipseWorkspace/AutomaticSoftwareRepairCourse/";
-		String srcPath = relativePath+"src/";
-		String binPath = relativePath+"bin/";
-		String testSuitesPath = relativePath+"test/";
-		String outputPath = relativePath+"outputMutants/";
-		//Class<?> testToRun = ExampleTestSuite.class;
+		//CONFIG+++
+		ConfigReader config = null;
+		if (args.length == 0) {
+			config = ConfigReader.getInstance();
+		} else {
+			config = ConfigReader.getInstance(args[0]);
+		}
+		String srcPath = config.getStringArgument(ORIGINAL_SOURCE_DIR);
+		String binPath = config.getStringArgument(ORIGINAL_BIN_DIR);
+		String testsBinPath = config.getStringArgument(TESTS_BIN_DIR);
+		String outputPath = config.getStringArgument(MUTANTS_DIR);
 		Set<String> tests = new TreeSet<>();
-		tests.add("examples.foo.ExampleTestSuite");
-		
-		Set<String> classesInOriginalSrcDir = scanBinPath(binPath);
+		for (String test : config.stringArgumentsAsArray(config.getStringArgument(TESTS))) {
+			tests.add(test);
+		}
 		Set<String> packagesToReload = new TreeSet<>();
-		packagesToReload.add("examples.foo");
+		for (String pkg : config.stringArgumentsAsArray(config.getStringArgument(ALLOWED_PACKAGES_TO_RELOAD))) {
+			packagesToReload.add(pkg);
+		}
+		//CONFIG---
 		
-		Tester tester = new Tester("bin/", "bin/", packagesToReload, tests);
-		NullPointerFailures failures = tester.runTests();
+		
+		Set<String> fixableClasses = scanForFixableClasses(binPath, srcPath);
+		
+		//TESTING+++
+		Tester tester = new Tester(testsBinPath, binPath, packagesToReload, tests);
+		NullPointerFailures failures = tester.runTests(fixableClasses);
 		int originalFailCount = failures.getFailureCount();
+		//TESTING---
+		
 		Map<String, NPERClassToMutate> classesToMutate = new TreeMap<>();
 		if (failures.hasFailures()) {
 			for (NullPointerFailure npef : failures.getNullPointerExceptionFailures()) {
@@ -62,11 +69,11 @@ public class Anper {
 				classToMutate.addMethod(method);
 			}
 			for (NPERClassToMutate ctm : classesToMutate.values()) {
-				MutGenLimitMarker mglMarker = new MutGenLimitMarker(null, ctm.getLines()); //TOOD: replace null with the path to file
+				MutGenLimitMarker mglMarker = new MutGenLimitMarker(classJavaFilePath(ctm.getClassName(), srcPath), ctm.getLines());
 				mglMarker.writeLines();
 				NPERMutator.mutate(srcPath, outputPath, ctm.getClassName(), ctm.getMethods());
 			}
-			failures = tester.runTests();
+			failures = tester.runTests(fixableClasses);
 			if (!failures.hasFailures()) {
 				System.out.println("YAY!");
 			} else if (!failures.hasNullPointerExceptionFailures()) {
@@ -77,71 +84,6 @@ public class Anper {
 				System.out.println("NEY!");
 			}
 		}
-		
-//		try {
-//			//MuJavaJunitTestRunner testRunner = new MuJavaJunitTestRunner(testToRun, false);
-//			//Result result = testRunner.run();
-//			Result result = JUnitCore.runClasses(testToRun);
-//
-//			
-//			if(!result.wasSuccessful()){
-//				System.out.println("Testing failures : "+result.getFailureCount());
-//				NullPointerFailures npetr = new NullPointerFailures();
-//				npetr.add(result);
-//				if (npetr.hasFailures()){
-//					List<NullPointerFailure> failures = npetr.getNullPointerExceptionFailures();
-//
-//					for (NullPointerFailure failure : failures){
-//						String className =  failure.getTestedClassName();
-//						String methodName = failure.getTestedMethodName();
-//						int failureLine = failure.getFailureLine(); 
-//						System.out.println(failure.toString());
-//						//System.out.println(failure.getOutputTrace());
-//
-//						if (classesInOriginalSrcDir.contains(className)){
-//							// try to repair
-//							System.out.println("contains!! "+className);
-//						}
-//						
-//						File file = null;
-//						Path path = new File(outputPath+failure.getTestedFileName()).toPath();
-//						if (!Files.exists(path, java.nio.file.LinkOption.NOFOLLOW_LINKS) ){
-//							file = new File(srcPath+failure.getTestedFileName());
-//						}else{
-//							file = new File(outputPath+failure.getTestedFileName());
-//						}
-//							
-//						List<String> lines;
-//						try {
-//							lines = Files.readAllLines(file.toPath());
-//							String line = lines.get(failureLine-1);
-//							lines.set(failureLine-1, line+" //mutGenLimit 1");
-//							
-//							file = new File(outputPath+failure.getTestedFileName());
-//							Files.write(file.toPath(), lines);
-//						} catch (IOException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();
-//						}
-//						
-//
-//						/*
-//						addMutGenLimit(program, className, method, line)
-//						mutate(program, className, method)
-//						*/						
-//					}
-//					/*
-//					results = test(program,tests)
-//					if (results.successful) print(YAY!)
-//					else if (!results.exceptions.contains(NullPointerException)) print(YAY!?)
-//					else print(NEY!)
-//					*/
-//				}
-//			}
-//
-//		} catch (IllegalArgumentException e) {
-//			e.printStackTrace();
-//		}
 
 	}
 	
@@ -149,16 +91,19 @@ public class Anper {
 	/*
 	 * Return class names in bin path
 	 */
-	private static Set<String> scanBinPath(String binPath) {
-		Set<String> classesInOriginalSrcDir = null;
+	private static Set<String> scanForFixableClasses(String binPath, String srcPath) {
+		Set<String> fixableClasses = null;
 		DependencyScanner depScanner;
 		try {
 			System.out.println(new File(binPath).toPath());
 			depScanner = new DependencyScanner(new File(binPath).toPath());
-			classesInOriginalSrcDir = new TreeSet<String>();
-			classesInOriginalSrcDir.addAll(depScanner.getDependencyMap().getClasses());
-			
-			System.out.println("classes in bin path : "+classesInOriginalSrcDir.size());
+			fixableClasses = new TreeSet<String>();
+			for (String c : depScanner.getDependencyMap().getClasses()) {
+				if (classSourceFileExist(c, srcPath)) {
+					fixableClasses.add(c);
+				}
+			}
+			System.out.println("fixable classes : "+fixableClasses.size());
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -166,7 +111,29 @@ public class Anper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return classesInOriginalSrcDir;
+		return fixableClasses;
+	}
+	
+	private static String classNameAsPath(String className) {
+		return className.replaceAll("\\.", ConfigReader.getInstance().getFileSeparator());
+	}
+	
+	private static String classJavaFilePath(String className, String srcPath) {
+		String fullPathToFile = addTrailingSeparator(srcPath) + classNameAsPath(className) + ".java";
+		return fullPathToFile;
+	}
+	
+	private static boolean classSourceFileExist(String className, String srcPath) {
+		File javaFile = new File(classJavaFilePath(className, srcPath));
+		return javaFile.exists();
+	}
+	
+	private static String addTrailingSeparator(String original) {
+		if (original.endsWith(ConfigReader.getInstance().getFileSeparator())) {
+			return original + ConfigReader.getInstance().getFileSeparator();
+		} else {
+			return original;
+		}
 	}
 
 }
