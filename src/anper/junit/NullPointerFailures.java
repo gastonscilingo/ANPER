@@ -19,6 +19,7 @@ public class NullPointerFailures {
 		this.failureCount = 0;
 		this.npeFailureCount = 0;
 		this.nullPointerFailures = new LinkedList<>();
+		this.fixableClasses = fixableClasses;
 	}
 	
 	public NullPointerFailures(List<Result> results, Set<String> fixableClasses) {

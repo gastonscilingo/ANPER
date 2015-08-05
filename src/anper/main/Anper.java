@@ -8,8 +8,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import main.api.DependencyScanner;
-import mujava.OpenJavaException;
-import openjava.ptree.ParseTreeException;
 import anper.config.ConfigReader;
 import static anper.config.ConfigReader.Config_key.*;
 import anper.junit.NullPointerFailure;
@@ -21,7 +19,7 @@ import anper.utils.MutGenLimitMarker;
 
 public class Anper {
 
-	public static void main(String[] args) throws ClassNotFoundException, OpenJavaException, ParseTreeException, IOException {
+	public static void main(String[] args) throws Exception {
 		//CONFIG+++
 		ConfigReader config = null;
 		if (args.length == 0) {
@@ -38,8 +36,10 @@ public class Anper {
 			tests.add(test);
 		}
 		Set<String> packagesToReload = new TreeSet<>();
-		for (String pkg : config.stringArgumentsAsArray(config.getStringArgument(ALLOWED_PACKAGES_TO_RELOAD))) {
-			packagesToReload.add(pkg);
+		if (config.argumentExist(ALLOWED_PACKAGES_TO_RELOAD)) {
+			for (String pkg : config.stringArgumentsAsArray(config.getStringArgument(ALLOWED_PACKAGES_TO_RELOAD))) {
+				packagesToReload.add(pkg);
+			}
 		}
 		//CONFIG---
 		
@@ -71,7 +71,7 @@ public class Anper {
 			for (NPERClassToMutate ctm : classesToMutate.values()) {
 				MutGenLimitMarker mglMarker = new MutGenLimitMarker(classJavaFilePath(ctm.getClassName(), srcPath), ctm.getLines());
 				mglMarker.writeLines();
-				NPERMutator.mutate(srcPath, outputPath, ctm.getClassName(), ctm.getMethods());
+				NPERMutator.mutate(srcPath, outputPath, binPath, ctm.getClassName(), ctm.getMethods());
 			}
 			failures = tester.runTests(fixableClasses);
 			if (!failures.hasFailures()) {
@@ -128,7 +128,7 @@ public class Anper {
 		return javaFile.exists();
 	}
 	
-	private static String addTrailingSeparator(String original) {
+	public static String addTrailingSeparator(String original) {
 		if (original.endsWith(ConfigReader.getInstance().getFileSeparator())) {
 			return original + ConfigReader.getInstance().getFileSeparator();
 		} else {

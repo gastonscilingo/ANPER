@@ -42,7 +42,7 @@ public class MutGenLimitMarker {
         Scanner scan = new Scanner(origFile);
         scan.useDelimiter("\n");
         String str = null;
-        int currentLine = -1;
+        int currentLine = 0;
         while(scan.hasNext()){
         	currentLine++;
             str = scan.next();
@@ -54,8 +54,9 @@ public class MutGenLimitMarker {
         }
         if (fos != null) fos.close();
         scan.close();
-        delete(this.path);
-        rename(this.path+".backup", this.path);
+        //delete(this.path);
+        rename(this.path, this.path+".bak");
+        rename(this.path+".modified", this.path);
 	}
 	
 	private void rename(String path1, String path2) {
