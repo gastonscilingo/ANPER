@@ -30,8 +30,12 @@ public class NullPointerFailure {
 		int i4 = traceLine.indexOf(')', i3);
 		
 		testedFileName = traceLine.substring(i2+1, i3);
-		testedClassName = traceLine.substring(0, i1);
-		testedMethodName = traceLine.substring(i1+1, i2);
+		//testedClassName = traceLine.substring(0, i1);
+		testedClassName = traceLine.substring(0, i2);
+		int i5 = testedClassName.lastIndexOf('.');
+		testedClassName = testedClassName.substring(0, i5);
+		//testedMethodName = traceLine.substring(i1+1, i2);
+		testedMethodName = traceLine.substring(i5+1, i2);
 		failureLine = Integer.valueOf(traceLine.substring(i3+1, i4)).intValue();
 	}
 
