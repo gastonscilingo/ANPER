@@ -41,7 +41,7 @@ public class NPERMutator {
 
 	
 	public static void mutate(String rootDir, String outDir, String binDir, String className, String[] methods) throws Exception {
-		MutationRequest mutReq = new MutationRequest(className, methods, new Mutant[]{Mutant.NPER}, rootDir, outDir, false, false);
+		MutationRequest mutReq = new MutationRequest(getPath("",className), methods, new Mutant[]{Mutant.NPER}, rootDir, outDir, false, false);
 		Mutator mutator = new Mutator();
 		mutator.setRequest(mutReq);
 		try {
@@ -63,6 +63,8 @@ public class NPERMutator {
 			PrintWriter pw = new PrintWriter(os);
 			MutantCodeWriter writer = new MutantCodeWriter(null, pw, null);
 			ast.accept(writer);
+			pw.flush();
+			pw.close();
 			Compiler compiler = new Compiler(outDir, binDir);
 			if (!compiler.compile(getPath("", className))) {
 				if (compiler.getError() != null) {

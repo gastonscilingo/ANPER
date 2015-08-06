@@ -129,7 +129,7 @@ public class Anper {
 	}
 	
 	public static String addTrailingSeparator(String original) {
-		if (original.endsWith(ConfigReader.getInstance().getFileSeparator())) {
+		if (!original.endsWith(ConfigReader.getInstance().getFileSeparator())) {
 			return original + ConfigReader.getInstance().getFileSeparator();
 		} else {
 			return original;
