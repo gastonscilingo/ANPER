@@ -40,6 +40,8 @@ public class Anper {
 			for (String pkg : config.stringArgumentsAsArray(config.getStringArgument(ALLOWED_PACKAGES_TO_RELOAD))) {
 				packagesToReload.add(pkg);
 			}
+		} else {
+			packagesToReload = null;
 		}
 		//CONFIG---
 		
